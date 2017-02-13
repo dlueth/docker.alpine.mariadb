@@ -13,9 +13,6 @@ ENV LANG="en_US.UTF-8" \
 # copy files
 	COPY files/. /
 
-# create directories
-	RUN mkdir -p /scripts/pre-exec.d /scripts/pre-init.d
-
 # alter permissions
 	RUN chmod -R 755 /scripts
 
@@ -24,7 +21,7 @@ ENV LANG="en_US.UTF-8" \
 		&& apk upgrade
 
 # add packages
-	RUN apk --no-cache add mariadb mariadb-client pwgen
+	RUN apk --no-cache add mariadb mariadb-client
 
 # cleanup
 	RUN rm -rf /tmp/* /var/cache/apk/*

@@ -5,25 +5,29 @@ SOCKET="--socket=/var/run/mysqld/mysqld.sock"
 OPTIONS="--defaults-file=/config/my.cnf $STORAGE --general_log_file=/app/data/logs/general.log --log-error=/app/data/logs/error.log --slow-query-log-file=/app/data/logs/slow.log --aria-log-dir-path=/app/data/logs --pid-file=/var/run/mysqld/mysqld.pid $SOCKET --bind-address=0.0.0.0 --port=3306 --user=mysql"
 
 if [ ! -d "/var/run/mysqld" ]; then
-	mkdir -p /var/run/mysqld
-	chown -R mysql:mysql /var/run/mysqld
+	mkdir -p /var/run/mysqld > /dev/null
+	chown -R mysql:mysql /var/run/mysqld > /dev/null
 fi
 
 if [ ! -d "/app/data/database" ]; then
-	mkdir -p /app/data/database
+	mkdir -p /app/data/database > /dev/null
 fi
 
 if [ ! -d "/app/data/logs" ]; then
-	mkdir -p /app/data/logs
+	mkdir -p /app/data/logs > /dev/null
 fi
 
-rm -rf /run/mysld
-ln -s /var/run/mysqld /run/mysqld
+(rm -rf /run/mysld && ln -s /var/run/mysqld /run/mysqld) > /dev/null
 
 if [ -d /app/data/database/mysql ]; then
 	echo "[i] Found MariaDB database"
 else
 	echo "[i] Could not find MariaDB database"
+
+	MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD:-""}
+	MARIADB_DATABASE=${MARIADB_DATABASE:-""}
+	MARIADB_USER=${MARIADB_USER:-""}
+	MARIADB_PASSWORD=${MARIADB_PASSWORD:-""}
 
 	chown -R mysql:mysql /var/lib/mysql
 
@@ -38,14 +42,12 @@ else
 	done
 
 	if [ "$MARIADB_ROOT_PASSWORD" = "" ]; then
-		MARIADB_ROOT_PASSWORD=`pwgen 16 1`
+		MARIADB_ROOT_PASSWORD=`cat /proc/sys/kernel/random/uuid | sed 's/-//g'`
 
 		echo "[i] Generated MariaDB root password: $MARIADB_ROOT_PASSWORD"
+	else
+		echo "[i] Setting MariaDB root password: $MARIADB_ROOT_PASSWORD"
 	fi
-
-	MARIADB_DATABASE=${MARIADB_DATABASE:-""}
-	MARIADB_USER=${MARIADB_USER:-""}
-	MARIADB_PASSWORD=${MARIADB_PASSWORD:-""}
 
 	sql=$(mktemp)
 
