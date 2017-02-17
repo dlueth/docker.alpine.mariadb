@@ -1,5 +1,5 @@
 .DS_Store
 .idea
 docker-compose.yml
-config/
-data/
+/config/
+/data/
