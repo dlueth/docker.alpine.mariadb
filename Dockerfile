@@ -16,15 +16,11 @@ ENV LANG="en_US.UTF-8" \
 # alter permissions
 	RUN chmod -R 755 /scripts
 
-# update packages
+# install
 	RUN apk update \
-		&& apk upgrade
-
-# add packages
-	RUN apk --no-cache add mariadb mariadb-client
-
-# cleanup
-	RUN rm -rf /tmp/* /var/cache/apk/*
+		&& apk upgrade \
+		&& apk --update --no-cache add mariadb mariadb-client \
+		&& rm -rf /tmp/* /var/cache/apk/*
 
 EXPOSE 3306
 
